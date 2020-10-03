@@ -209,6 +209,7 @@
             $item['time'] = $date." ".$item['hour'];
             $item['date'] = $date;
             $item['source'] = "וואלה!";
+            $item['img'] = "walla";
             
             $wallaID = $article -> find('.body > a', 0) -> href;
             $item['articleID'] = $wallaID;
@@ -243,6 +244,7 @@
             $item['hour'] = date('H:i', strtotime($item['time']));
             $item['source'] = "ynet";
             $item['body'] = "";
+            $item['img'] = "ynet";
                     
             $item['articleID'] = $article -> href;
             $articles[] = $item;
@@ -261,13 +263,21 @@
         
         $url = 'https://www.haaretz.co.il/misc/breaking-news';
         $html = curl($url)["content"];
+
+        $count = 0;
         // Find all article blocks
         foreach($html->find('main article > div > div > div') as $day) {
+            if ($count == 40) {
+                break;
+            }
+
             $date = trimmer($day -> find('div > time', 0) -> plaintext);
             $date = str_replace("/", "-", $date);
             $date = date("Y-m-d", strtotime($date));
             
             foreach($day->find('li') as $article) {
+                
+
                 $text = trimmer($article -> plaintext);
                 $text = preg_replace("/\([^)]+\)/", "", $text); // remove parenthesis
 
@@ -277,10 +287,12 @@
                 $item['time'] = $date." ".$item['hour'];
                 $item['source'] = "הארץ";
                 $item['body'] = "";
+                $item['img'] = "haaretz";
                         
                 $item['articleID'] = "";
                 $articles[] = $item;
             }
+            $count++;
         }
         return $articles;
     }

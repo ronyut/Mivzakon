@@ -12,6 +12,20 @@ header("Content-type: application/json; charset=utf-8");
 
 #################################################
 
+$files = glob("cache/*");
+foreach($files as $file) {
+	$cacheTime = preg_replace("/[^0-9]/", "", $file);
+	
+	// if not passed 5 minutes since last cache
+	if($cacheTime + 60 * 5 >= time()) {
+		$cached = file_get_contents($file);
+		die($cached);
+	} else {
+		unlink($file);
+	}
+}
+
+
 $walla_1 = getWalla(1); // first page
 $walla_2 = getWalla(2); // second page
 $ynet    = getYnet();
@@ -23,7 +37,7 @@ $allText = "";
 foreach ($articles as $i => $article) {
 	$time[$i] = $article['time'];
 	$allText .= $article["title"]." ";
-	//$allText .= $article["body"]." ";
+	$allText .= $article["body"]." ";
 }
 	
 $stopwords = file_get_contents("stopwords.json");
@@ -78,5 +92,9 @@ $articles = array_slice($articles, 0, 100);
 
 $output = array("keywords" => $keywords, "articles" => $articles);
 
-echo json_encode($output, JSON_UNESCAPED_UNICODE);
+echo $encoded =  json_encode($output, JSON_UNESCAPED_UNICODE);
+
+// save cache
+file_put_contents("cache/".time(), $encoded);
+
 ?>
