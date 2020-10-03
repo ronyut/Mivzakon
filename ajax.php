@@ -45,10 +45,13 @@ $stopwords = json_decode($stopwords);
 
 //$allText = "  בקורונה הקורונה מקורונה לקורונה וקורונה שהקורונה קורונה";
 
-$replace_to_none = ['"', "&quot;", "&apos;"];
-$clean = str_replace($replace_to_none, "", $allText);
+$replace_to_single_quote = ["&#8217;", "&rsquo;", "&#x2019;", "&#39;", "&apos;", "&#x27;"];
+$clean = str_replace($replace_to_single_quote, "'", $allText);
 
-$replace_to_space = [",", "-", "?", ".", "(", ")", "+", ":", "=", "/", "\\", "@", "#", "[", "]", "%", "^", "&", "*", ";"];
+$replace_to_none = ['"', "&quot;"];
+$clean = str_replace($replace_to_none, "", $clean);
+
+$replace_to_space = [",", "-", "?", ".", "(", ")", "+", ":", "=", "/", "\\", "@", "#", "[", "]", "%", "^", "*", ";"];
 $clean = str_replace($replace_to_space, " ", $clean);
 $clean = trimmer($clean);
 $words = explode(" ", $clean);

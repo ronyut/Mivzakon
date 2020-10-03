@@ -58,7 +58,6 @@
     }
     
     h1 {
-        margin-bottom: 50px;
         font-size: 5rem;
         font-weight: bold;
     }
@@ -88,7 +87,8 @@
         height: 20px;
         border: 1px solid white;
         border-radius: 20px;
-
+        width: 80%;
+        display: inline-block;
     }
 
     .bar-fill {
@@ -113,6 +113,7 @@
             <div class="bar">
                 <div class="bar-fill"></div>
             </div>
+            <br />
             <span></span>
         </div>
 
@@ -131,27 +132,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
-        let isDone;
-        loading();
+        let isDone = {val: false};
+        loading(isDone);
 
         $.ajax({
             url: "ajax.php",
             type: "GET",
             cache: false,
             success : function(data){
-                handleData(data);
+                isDone.val = true;
+                handleData(data, isDone);
             }
         });
 
-        function handleData(data) {
+        function handleData(data, isDone) {
             let html = {keywords: "", articles: ""};
-            const skip = ["נשיא", "ממשלה", "מדינה", "משרד", "שר", "ארצות", "הברית", "נפגע", "חשוד"];
+            const skip = ["נשיא", "ממשלה", "מדינה", "משרד", "שר", "ארצות", "הברית", "נפגע", "חשוד", "חשד"];
 
             $.each(data.keywords, function(name, count) {
-                count > 70 ? count /= 1.7 : null;
+                const newCount = Math.sqrt(count) * 3 + 4;
 
-                if (count >= 14 && !skip.includes(name)) {
-                    html.keywords += `<span class="badge badge-pill badge-primary" style='font-size:`+count+`px'>`+name+`</span> `;
+                if (newCount >= 14 && !skip.includes(name)) {
+                    html.keywords += `<span class="badge badge-pill badge-primary" style='font-size:`+newCount+`px'>`+name+`</span> `;
                 }
             });
 
@@ -168,8 +170,7 @@
                         <td>`+article.title+`</td>
                     </tr>`;
             });
-            isDone = true;
-            $(this).css("width", "100%");
+
             $(".wait").slideUp(1000, function() {
                 $("#articles").html(html.articles);
                 $("#keywords").html(html.keywords);
@@ -177,18 +178,23 @@
                 $("body").removeClass("bg-blue");
                 $(".flex-it").removeClass("flex-it");
             });
+            
         }
 
-        function loading() {
+        function loading(isDone) {
             let num = 0;
             let noRight, noLeft;
 
             for(i=0; i<=100; i++) {
-                if (isDone) {
-                    break;
-                }
 
                 setTimeout(function() { 
+                    if (isDone.val) {
+                        $('.wait .bar-fill').css("transition", 'width 100ms');
+                        $('.wait .bar-fill').css("width", '100%');
+                        $('.wait > span').html('100%');
+                        return;
+                    }
+                
                     $('.wait > span').html(num+'%');
                     $('.wait .bar-fill').css("width", num+'%');
 
@@ -203,13 +209,29 @@
                     }
 
                     if (num == 100) {
-                        $('.wait > span').html("מייד צוללים פנימה");
+                        $('.wait > span').html("מייד צוללים פנימה<span class='dots'></span>");
+                        //loadingDots(1, isDone);
                     }
 
                     num++;
                 },i*50);
             };
+        }
 
+        function loadingDots(num, isDone) {
+            if (num == 4) {
+                num = 1;
+            }
+
+            setTimeout(function() { 
+                $("span.dots").text(".".repeat(num));
+
+                if (isDone.val) {
+                    return;
+                } else {
+                    loadingDots(num+1, isDone);
+                }
+            }, 300);
         }
 	
 	</script>
