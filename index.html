@@ -136,7 +136,7 @@
         loading(isDone);
 
         $.ajax({
-            url: "ajax.php",
+            url: "inc/ajax.php",
             type: "GET",
             cache: false,
             success : function(data){
@@ -209,29 +209,12 @@
                     }
 
                     if (num == 100) {
-                        $('.wait > span').html("מייד צוללים פנימה<span class='dots'></span>");
-                        //loadingDots(1, isDone);
+                        $('.wait > span').html("מיד צוללים פנימה<span class='dots'></span>");
                     }
 
                     num++;
                 },i*50);
             };
-        }
-
-        function loadingDots(num, isDone) {
-            if (num == 4) {
-                num = 1;
-            }
-
-            setTimeout(function() { 
-                $("span.dots").text(".".repeat(num));
-
-                if (isDone.val) {
-                    return;
-                } else {
-                    loadingDots(num+1, isDone);
-                }
-            }, 300);
         }
 	
 	</script>
