@@ -12,7 +12,7 @@ header("Content-type: application/json; charset=utf-8");
 
 #################################################
 
-$files = glob("cache/*");
+$files = glob("../cache/*");
 foreach($files as $file) {
 	$cacheTime = preg_replace("/[^0-9]/", "", $file);
 	
@@ -37,7 +37,7 @@ $allText = "";
 foreach ($articles as $i => $article) {
 	$time[$i] = $article['time'];
 	$allText .= $article["title"]." ";
-	$allText .= $article["body"]." ";
+	//$allText .= $article["body"]." ";
 }
 	
 $stopwords = file_get_contents("stopwords.json");
@@ -98,6 +98,6 @@ $output = array("keywords" => $keywords, "articles" => $articles);
 echo $encoded =  json_encode($output, JSON_UNESCAPED_UNICODE);
 
 // save cache
-file_put_contents("cache/".time(), $encoded);
+file_put_contents("../cache/".time(), $encoded);
 
 ?>

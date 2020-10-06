@@ -310,7 +310,7 @@
             if(mb_strlen($word) >= 2 && mb_strlen($input) >= 2) {
                            
                 $sim = similar_text($input, $word, $perc);
-                if($perc > 85) {
+                if($perc > 85 && (contains($input, $word) || contains($word, $input))) {
                     $result["found"] = $word;
                     if (mb_strlen($word) > mb_strlen($input)) {
                         $result["found"] = $input;
