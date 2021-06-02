@@ -3,6 +3,7 @@
 <head>
     <title>מבזקון</title>
 	<meta charset="utf-8">
+	<base href="../mivzakon/" target="_blank">
     <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -104,6 +105,14 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+	
+	.show-onload {
+		display: none;
+	}
+	
+	#hamas-btn {
+		margin-bottom: 15px;
+	}
 	</style>
 </head>
 <body dir="rtl" class="bg-blue">
@@ -117,12 +126,18 @@
             <span></span>
         </div>
 
-        <div align="center">
+        <div class="show-onload" align="center">
             <div id="keywords"></div>
+			<div id ="hamas-btn">
+				<button type="button" class="btn btn-success" onclick="$('#hamas').toggle();$('#articles').toggle();">מבזקי חמאס</button>
+			</div>
         </div>
         
         <div>
             <table id="articles" class="table table-hover" align="center">
+                <tbody></tbody>
+            </table>
+			<table id="hamas" style="display:none" class="table table-hover" align="center">
                 <tbody></tbody>
             </table>
             <br />
@@ -144,10 +159,34 @@
                 handleData(data, isDone);
             }
         });
+		
+		$.ajax({
+            url: "inc/ajax.php?keywords",
+            type: "GET",
+            cache: false,
+            success : function(data){
+                handleKeywords(data, isDone);
+            }
+        });
 
-        function handleData(data, isDone) {
-            let html = {keywords: "", articles: ""};
-            const skip = ["נשיא", "ממשלה", "מדינה", "משרד", "שר", "ארצות", "הברית", "נפגע", "חשוד", "חשד"];
+		function handleSaraya(data, isDone) {
+            let html = {saraya: ""};
+			
+			$.each(data.saraya, function(key, article) {
+                html.hamas +=
+                    `<tr>
+                        <td><img src="img/saraya.png" width="40" border="0"></td>
+                        <td>`+article.created_at+`</td>
+                        <td>`+article.title+`</td>
+                    </tr>`;
+            });
+            
+			$("#hamas").append(html.saraya);
+        }
+
+		function handleKeywords(data, isDone) {
+            let html = {keywords: ""};
+            const skip = ["נשיא", "ממשלה", "מדינה", "משרד", "שר", "ארצות", "הברית", "נפגע", "חשוד", "חשד", "בשל"];
 
             $.each(data.keywords, function(name, count) {
                 const newCount = Math.sqrt(count) * 3 + 4;
@@ -156,6 +195,13 @@
                     html.keywords += `<span class="badge badge-pill badge-primary" style='font-size:`+newCount+`px'>`+name+`</span> `;
                 }
             });
+			
+			$("#keywords").html(html.keywords);
+			
+		}
+
+        function handleData(data, isDone) {
+            let html = {articles: "", hamas: ""};
 
             let lastDate;
             $.each(data.articles, function(key, article) {
@@ -170,13 +216,28 @@
                         <td>`+article.title+`</td>
                     </tr>`;
             });
+			
+			$.each(data.hamas, function(key, article) {
+                html.hamas +=
+                    `<tr>
+                        <td><img src="img/`+article.img+`.svg" width="40" border="0"></td>
+                        <td>`+article.articleID+`</td>
+                        <td>`+article.title+`</td>
+                    </tr>`;
+            });
+			
 
             $(".wait").slideUp(1000, function() {
                 $("#articles").html(html.articles);
-                $("#keywords").html(html.keywords);
+                $("#hamas").append(html.hamas);
                 $("#articles").removeClass("hidden");
                 $("body").removeClass("bg-blue");
                 $(".flex-it").removeClass("flex-it");
+                $(".show-onload").show();
+				
+				if (html.hamas == "") {
+					$("#hamas-btn").hide();
+				}
             });
             
         }
