@@ -12,17 +12,17 @@ header("Content-type: application/json; charset=utf-8");
 
 #################################################
 
-$inerval = 30;
+$inerval = 30; // seconds
 $files = glob("../cache/*");
-foreach($files as $file) {
+foreach(array_reverse($files) as $file) {
 	$cacheTime = preg_replace("/[^0-9]/", "", $file);
 	
-	// if not passed 5 minutes since last cache
+	// if not passed X time since last cache
 	if($cacheTime + $inerval >= time()) {
 		$cached = file_get_contents($file);
 		die($cached);
 	} else {
-		unlink($file);
+		break;
 	}
 }
 

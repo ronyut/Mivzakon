@@ -113,6 +113,29 @@
 	#hamas-btn {
 		margin-bottom: 15px;
 	}
+
+    .mivzak-body {
+        display: none;
+        color: grey;
+    }
+
+    @media only screen and (max-width: 500px) {
+        table#articles {
+            width: 100%;
+        }
+    }
+
+    @media only screen and (max-width: 1000px) {
+        table#articles {
+            width: 80%;
+        }
+    }
+
+    @media only screen and (min-width: 1400px) {
+        table#articles {
+            width: 50%;
+        }
+    }
 	</style>
 </head>
 <body dir="rtl" class="bg-blue">
@@ -213,7 +236,12 @@
                     `<tr>
                         <td><img src="img/`+article.img+`.svg" width="40" border="0"></td>
                         <td><b>`+article.hour+`</b></td>
-                        <td>`+article.title+`</td>
+                        <td>
+                            <div class="mivzak-title">`+article.title+`</div>
+                            <div class="mivzak-body">
+                                `+article.body+`
+                            </div>
+                        </td>
                     </tr>`;
             });
 			
@@ -278,6 +306,20 @@
             };
         }
 	
+        // toggle mivzak body once its title is clicked
+        $(document).on("click", ".mivzak-title", function() {
+            $(this).parent().find(".mivzak-body").toggle();
+        });
+
+        // toggle mivzak body once its title is clicked
+        $(document).on("mouseover", ".mivzak-title", function() {
+            if ($(this).parent().find(".mivzak-body").text().trim() != "") {
+                $(this).css("cursor", "pointer");
+            }
+        });
+
+        // hard refresh
+        window.location.reload(true)
 	</script>
 </body>
 </html>

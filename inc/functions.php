@@ -6,7 +6,7 @@
 		Global Vars
 	**************************************************************/
     $ROOT_PATH = getProtocol()."://$_SERVER[HTTP_HOST]";
-    $BASE_PATH = getProtocol()."://$_SERVER[HTTP_HOST]"."/biochem";
+    $BASE_PATH = getProtocol()."://$_SERVER[HTTP_HOST]"."/mivzakon";
     $ACTUAL_LINK = $ROOT_PATH.$_SERVER["REQUEST_URI"];
 
     /**************************************************************
@@ -228,10 +228,17 @@
         
         $url = 'https://www.ynet.co.il/news/category/184';
         $html = curl($url)["content"];
+
+        $json = $html -> find(".FlashPageComponenta script")[0];
+        $json = preg_match('`items":([^\]]+)`umi', $json, $matches);
+        $json = $matches[1] . "]";
+        $json = json_decode($json, true);
+
         // Find all article blocks
-        foreach($html->find('.Accordion .AccordionSection') as $article) {
-            $item['title'] = trimmer($article -> find('.title')[0] -> plaintext);
-            $timestamp = $article -> find('.DateDisplay')[0] -> getAttribute("data-wcmdate");
+        foreach($json as $article) {
+            $item = [];
+            $item['title'] = $article["title"];
+            $timestamp = $article["date"];
             $date = date("Y-m-d", strtotime($timestamp));
             $hour = date("H:i", strtotime($timestamp));
             
@@ -239,10 +246,10 @@
             $item['time'] = $date." ".$hour;
             $item['hour'] = $hour;
             $item['source'] = "ynet";
-            $item['body'] = ""; //$article -> find(".itemBody")[0] -> plaintext;
+            $item['body'] = $article["text"];
             $item['img'] = "ynet";
                     
-            $item['articleID'] = $article -> getAttribute('id');
+            $item['articleID'] = $article["articleId"];
             $articles[] = $item;
         }
         return $articles;
@@ -252,9 +259,7 @@
         getHaaretz:
         Crawl Haaretz
 	**************************************************************/
-    function getHaaretz() {
-        //$time_zevel = $article -> parent -> parent -> nextSibling() -> plaintext;
-        
+    function getHaaretz() {  
         $articles = array();
         
         $url = 'https://www.haaretz.co.il/misc/breaking-news';
@@ -296,7 +301,6 @@
     // https://www.maariv.co.il/breaking-news
     // https://www.mako.co.il/news-news-flash
     // https://13news.co.il/news/news-flash/
-    // https://www.haaretz.co.il/misc/breaking-news
     
     
     function findSimilar($array, $input) {
@@ -354,8 +358,8 @@
     }
 	
 	/**************************************************************
-        getHamas:
-        Crawl Hamas
+        getKeywords:
+        Analyze text and extract trending keywords
 	**************************************************************/
 	function getKeywords($articles){
 		$allText = "";
